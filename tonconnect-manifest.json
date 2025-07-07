@@ -1,0 +1,10 @@
+{
+  "manifest_version": "2",
+  "id": "savejie-18-bot",
+  "name": "Savejie 18+ Bot",
+  "url": "https://t.me/Savejie_18_pluss_bot",
+  "iconUrl": "https://i.imgur.com/EgGPktP.png",
+  "termsUrl": "https://ton.org/terms",
+  "privacyPolicyUrl": "https://ton.org/privacy",
+  "platforms": ["telegram"]
+}
