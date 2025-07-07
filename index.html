@@ -21,10 +21,9 @@
     .logo {
       width: 300px;
       max-width: 90%;
-      margin-top: 2em;
-      margin-bottom: 1.5em;
+      margin: 3em auto 1.5em;
     }
-    .header-icon {
+    .header-icon, #ton-connect {
       position: absolute;
       top: 1em;
       font-size: 1.5em;
@@ -36,20 +35,29 @@
       left: 1em;
     }
     #ton-connect {
-      position: absolute;
-      top: 1em;
-      right: 1em;
+      left: 3.5em;
     }
-    /* Style the TonConnect "Connect wallet" button */
-    #ton-connect button {
+    /* Style the TonConnect "Connect wallet" button as icon */
+    #ton-connect .tonconnect-button {
       background-color: #fff !important;
       color: #000 !important;
       border: none !important;
-      border-radius: 6px !important;
-      padding: 0.5em 1em !important;
-      font-size: 1em !important;
-      font-weight: bold !important;
-      cursor: pointer;
+      border-radius: 50% !important;
+      width: 2.4em !important;
+      height: 2.4em !important;
+      padding: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    /* Hide default button text */
+    #ton-connect .tonconnect-button .tonconnect-button__link-text {
+      display: none !important;
+    }
+    /* Add key emoji */
+    #ton-connect .tonconnect-button::before {
+      content: "🔑";
+      font-size: 1.2em;
     }
     button.payment-btn {
       display: block;
@@ -77,12 +85,12 @@
   </style>
 </head>
 <body>
-  <!-- Support icon top-left: @ symbol -->
+  <!-- Support icon top-left: Telegram-style @ -->
   <a href="https://t.me/Palidziba_Savejiem_18_pluss" class="header-icon support-icon" title="Atbalsts">
     @
   </a>
 
-  <!-- TonConnect button container top-right -->
+  <!-- Custom Connect Wallet icon next to support -->
   <div id="ton-connect"></div>
 
   <!-- Logo -->
@@ -101,7 +109,7 @@
   </button>
 
   <script>
-    const connector = new TonConnectUI({
+    const connector = new TonConnectUI.TonConnectUI({
       manifestUrl: "https://xpogsx.github.io/miniapp/tonconnect-manifest.json",
       buttonRootId: "ton-connect"
     });
