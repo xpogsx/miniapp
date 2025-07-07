@@ -1,52 +1,97 @@
-
 <!DOCTYPE html>
 <html lang="lv">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Savejie 18+ Apmaksa</title>
-  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@tonconnect/ui/dist/tonconnect-ui.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'UnifrakturCook', cursive;
+      position: relative;
+      font-family: 'Roboto', sans-serif;
       text-align: center;
       padding: 2em;
-      background-color: #111;
-      color: white;
+      background-color: #000;
+      color: #fff;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
     }
-    img.logo {
+    .logo {
       width: 300px;
       max-width: 90%;
+      margin-top: 2em;
       margin-bottom: 1.5em;
     }
+    .header-icon {
+      position: absolute;
+      top: 1em;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: #fff;
+      text-decoration: none;
+    }
+    .support-icon {
+      left: 1em;
+    }
+    #ton-connect {
+      position: absolute;
+      top: 1em;
+      right: 1em;
+    }
     button {
-      padding: 1em 2em;
-      margin: 1em;
-      font-size: 1.2em;
+      display: block;
+      width: 100%;
+      max-width: 360px;
+      margin: 1em auto;
+      padding: 1em;
+      font-size: 1.1em;
+      font-weight: bold;
       border: none;
       border-radius: 8px;
       background-color: #00bfa5;
-      color: white;
+      color: #000;
       cursor: pointer;
+      text-align: left;
     }
     h1 {
-      color: #00bfa5;
       font-size: 2em;
+      margin-bottom: 0.5em;
+    }
+    p.subtitle {
+      margin: 1em 0;
+      font-size: 1.2em;
     }
   </style>
 </head>
 <body>
-  <img src="logo.jpg" alt="Savejie 18+ Logo" class="logo" />
-  <h1>Apmaksa par abonementu</h1>
+  <!-- Support icon top-left -->
+  <a href="https://t.me/Palidziba_Savejiem_18_pluss" class="header-icon support-icon" title="Atbalsts">
+    🎧
+  </a>
+
+  <!-- TonConnect button container top-right -->
   <div id="ton-connect"></div>
-  <p>Izvēlies abonementu:</p>
-  <button onclick="sendPayment(3)">3 TON – 24h</button>
-  <button onclick="sendPayment(20)">20 TON – 30d</button>
+
+  <!-- Logo -->
+  <img src="logo.jpg" alt="Savejie 18+ Logo" class="logo" />
+  
+  <!-- Title and subtitle -->
+  <h1>Apmaksa par abonementu</h1>
+  <p class="subtitle">Izvēlies abonementu:</p>
+
+  <!-- Payment buttons -->
+  <button onclick="sendPayment(3)">
+    ⚡️ 3 TON ⚡️ – 24 stundu abonements
+  </button>
+  <button onclick="sendPayment(20)">
+    ⚡️ 20 TON ⚡️ – 30 dienu abonements
+  </button>
 
   <script>
-    const connector = new TON_CONNECT_UI.TonConnectUI({
-      manifestUrl: "https://185.53.131.58/tonconnect-manifest.json",
+    const connector = new TonConnectUI({
+      manifestUrl: "https://xpogsx.github.io/miniapp/tonconnect-manifest.json",
       buttonRootId: "ton-connect"
     });
 
@@ -56,19 +101,17 @@
 
       const tx = {
         validUntil: Math.floor(Date.now() / 1000) + 600,
-        messages: [
-          {
-            address: "EQDz6GJiWRiCfY2w6d0wv54YcCeCbCnRcC8NU9tsY9pC_8X1",
-            amount: (amount * 1e9).toString()
-          }
-        ]
+        messages: [{
+          address: "EQDz6GJiWRiCfY2w6d0wv54YcCeCbCnRcC8NU9tsY9pC_8X1",
+          amount: (amount * 1e9).toString()
+        }]
       };
 
       try {
         const result = await connectedWallet.sendTransaction(tx);
         Telegram.WebApp.sendData(JSON.stringify({
           type: "ton_payment",
-          amount: amount,
+          amount,
           txid: result.boc
         }));
         alert("✅ Maksājums nosūtīts!");
