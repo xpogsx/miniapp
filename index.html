@@ -40,7 +40,18 @@
       top: 1em;
       right: 1em;
     }
-    button {
+    /* Style the TonConnect "Connect wallet" button */
+    #ton-connect button {
+      background-color: #fff !important;
+      color: #000 !important;
+      border: none !important;
+      border-radius: 6px !important;
+      padding: 0.5em 1em !important;
+      font-size: 1em !important;
+      font-weight: bold !important;
+      cursor: pointer;
+    }
+    button.payment-btn {
       display: block;
       width: 100%;
       max-width: 360px;
@@ -66,9 +77,9 @@
   </style>
 </head>
 <body>
-  <!-- Support icon top-left -->
+  <!-- Support icon top-left: @ symbol -->
   <a href="https://t.me/Palidziba_Savejiem_18_pluss" class="header-icon support-icon" title="Atbalsts">
-    🎧
+    @
   </a>
 
   <!-- TonConnect button container top-right -->
@@ -82,10 +93,10 @@
   <p class="subtitle">Izvēlies abonementu:</p>
 
   <!-- Payment buttons -->
-  <button onclick="sendPayment(3)">
+  <button class="payment-btn" onclick="sendPayment(3)">
     ⚡️ 3 TON ⚡️ – 24 stundu abonements
   </button>
-  <button onclick="sendPayment(20)">
+  <button class="payment-btn" onclick="sendPayment(20)">
     ⚡️ 20 TON ⚡️ – 30 dienu abonements
   </button>
 
