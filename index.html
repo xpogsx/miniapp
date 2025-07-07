@@ -1,120 +1,61 @@
 <!DOCTYPE html>
 <html lang="lv">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Savejie 18+ Apmaksa</title>
-  <!-- TonConnect UI -->
-  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <!-- TonConnect UI -->
+  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <style>
-    body {
-      position: relative;
-      font-family: 'Roboto', sans-serif;
-      text-align: center;
-      background-color: #000;
-      color: #fff;
-      margin: 0;
-      padding-top: 6em;
-      height: 100vh;
-      overflow: hidden;
-    }
-    /* Header icons */
-    .header-icon, #ton-connect {
-      position: absolute;
-      top: 1em;
-      font-size: 1.6em;
-      cursor: pointer;
-      color: #fff;
-      text-decoration: none;
-      z-index: 10;
-    }
-    .support-icon { left: 1em; }
-    #ton-connect { left: 3.5em; }
-    /* Logo and spacing */
-    .logo {
-      width: 280px;
-      max-width: 80%;
-      margin: 2.5em auto 1.5em;
-      display: block;
-      z-index: 1;
-    }
-    h1 { font-size: 2em; margin: 0.5em 0; z-index: 1; }
-    p.subtitle { margin: 1em 0; font-size: 1.2em; z-index: 1; }
-    .payment-btn {
-      display: block;
-      width: 90%;
-      max-width: 360px;
-      margin: 1em auto;
-      padding: 1em;
-      font-size: 1.1em;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      background-color: #00bfa5;
-      color: #000;
-      cursor: pointer;
-      text-align: left;
-      z-index: 1;
-    }
+    body { font-family: 'Roboto', sans-serif; text-align: center; background: #000; color: #fff; margin:0; padding-top:6em; }
+    .header-icon, #ton-connect { position:absolute; top:1em; font-size:1.6em; cursor:pointer; color:#fff; z-index:10; }
+    .support-icon { left:1em; }
+    #ton-connect { left:3.5em; }
+    .logo { width:280px; max-width:80%; margin:2.5em auto 1.5em; display:block; }
+    h1 { font-size:2em; margin:0.5em 0; }
+    p.subtitle { margin:1em 0; font-size:1.2em; }
+    .payment-btn { display:block; width:90%; max-width:360px; margin:1em auto; padding:1em; font-size:1.1em; font-weight:bold; border:none; border-radius:8px; background:#00bfa5; color:#000; cursor:pointer; text-align:left; }
   </style>
-  <script>
-    let connector;
-    async function initConnector() {
-      // Instantiate the TonConnect UI connector
-      connector = new TonConnectUI({
-        manifestUrl: 'https://xpogsx.github.io/miniapp/tonconnect-manifest.json',
-        buttonRootId: 'ton-connect'
-      });
-      // Render the "Connect Wallet" button/icon
-      await connector.renderButton();
-    }
-    async function sendPayment(amount) {
-      if (!connector) {
-        alert('Seifs vēl nav sagatavots — lūdzu uzgaidi!');
-        return;
-      }
-      try {
-        // Ensure wallet is connected
-        const wallet = await connector.connect();
-        // Prepare a payment transaction
-        const tx = {
-          validUntil: Math.floor(Date.now() / 1000) + 600,
-          messages: [{
-            address: 'EQDz6GJiWRiCfY2w6d0wv54YcCeCbCnRcC8NU9tsY9pC_8X1',
-            amount: (amount * 1e9).toString()
-          }]
-        };
-        // Send the transaction via the connected wallet
-        const result = await wallet.sendTransaction(tx);
-        // Send data back to Telegram bot
-        Telegram.WebApp.sendData(JSON.stringify({ type: 'ton_payment', amount, txid: result.boc }));
-        alert('✅ Maksājums veiksmīgi nosūtīts!');
-      } catch (err) {
-        console.error('🔴 Maksājuma kļūda:', err);
-        alert('❌ Maksājuma laikā radās kļūda: ' + (err.message || err));
-      }
-    }
-    document.addEventListener('DOMContentLoaded', async () => {
-      await initConnector();
-      document.getElementById('btn-3ton').addEventListener('click', () => sendPayment(3));
-      document.getElementById('btn-20ton').addEventListener('click', () => sendPayment(20));
-    });
-  </script>
 </head>
 <body>
-  <!-- Support icon -->
   <a href="https://t.me/Palidziba_Savejiem_18_pluss" class="header-icon support-icon" title="Atbalsts">@</a>
-  <!-- Connect Wallet icon container -->
   <div id="ton-connect"></div>
-  <!-- Logo -->
-  <img src="logo.jpg" alt="Savejie 18+ Logo" class="logo" />
-  <!-- Title and subtitle -->
+  <img src="logo.jpg" alt="Savejie 18+ Logo" class="logo">
   <h1>Apmaksa par abonementu</h1>
   <p class="subtitle">Izvēlies abonementu:</p>
-  <!-- Payment buttons -->
-  <button id="btn-3ton" class="payment-btn">⚡️ 3 TON ⚡️ – 24 stundu abonements</button>
-  <button id="btn-20ton" class="payment-btn">⚡️ 20 TON ⚡️ – 30 dienu abonements</button>
+  <button id="btn-3ton" class="payment-btn">⚡️ 3 TON ⚡️ – 24 stundu abonements</button>
+  <button id="btn-20ton" class="payment-btn">⚡️ 20 TON ⚡️ – 30 dienu abonements</button>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // init TonConnect
+      const ui = new TonConnectUI({
+        manifestUrl: 'https://xpogsx.github.io/miniapp/tonconnect-manifest.json',
+      });
+      // render connect button
+      ui.connectButton('#ton-connect');
+
+      document.getElementById('btn-3ton').onclick = async () => {
+        try {
+          const wallet = await ui.connect();
+          const tx = { validUntil: Math.floor(Date.now()/1000)+600, messages: [{ address:'EQDz6GJiWRiCfY2w6d0wv54YcCeCbCnRcC8NU9tsY9pC_8X1', amount:(3*1e9).toString() }] };
+          const res = await wallet.sendTransaction(tx);
+          Telegram.WebApp.sendData(JSON.stringify({ type:'ton_payment', amount:3, txid:res.boc }));
+          alert('✅ Maksājums 3 TON veiksmīgs!');
+        } catch (e) { console.error(e); alert('❌ Maksājuma kļūda: '+e.message); }
+      };
+      document.getElementById('btn-20ton').onclick = async () => {
+        try {
+          const wallet = await ui.connect();
+          const tx = { validUntil: Math.floor(Date.now()/1000)+600, messages:[{ address:'EQDz6GJiWRiCfY2w6d0wv54YcCeCbCnRcC8NU9tsY9pC_8X1', amount:(20*1e9).toString() }] };
+          const res = await wallet.sendTransaction(tx);
+          Telegram.WebApp.sendData(JSON.stringify({ type:'ton_payment', amount:20, txid:res.boc }));
+          alert('✅ Maksājums 20 TON veiksmīgs!');
+        } catch (e) { console.error(e); alert('❌ Maksājuma kļūda: '+e.message); }
+      };
+    });
+  </script>
 </body>
 </html>
