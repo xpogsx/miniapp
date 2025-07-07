@@ -16,7 +16,7 @@
       background-color: #000;
       color: #fff;
       margin: 0;
-      padding-top: 5em; /* palielināta atstarpe virs satura */
+      padding-top: 6em;
       height: 100vh;
       overflow: hidden;
     }
@@ -36,7 +36,7 @@
     .logo {
       width: 280px;
       max-width: 80%;
-      margin: 2em auto 1.5em; /* pievienota margin-top */
+      margin: 2.5em auto 1.5em;
       display: block;
       z-index: 1;
     }
@@ -61,36 +61,34 @@
   </style>
   <script>
     let connector;
-    // Initialize TonConnectUI
-    function initConnector() {
-      connector = new TonConnectUI.TonConnectUI({
+    async function initConnector() {
+      // Instantiate the TonConnect UI connector
+      connector = new TonConnectUI({
         manifestUrl: 'https://xpogsx.github.io/miniapp/tonconnect-manifest.json',
         buttonRootId: 'ton-connect'
       });
-      // Render the connect wallet button/icon
-      connector.renderButton();
+      // Render the "Connect Wallet" button/icon
+      await connector.renderButton();
     }
-    // Send TON payment
     async function sendPayment(amount) {
+      if (!connector) {
+        alert('Seifs vēl nav sagatavots — lūdzu uzgaidi!');
+        return;
+      }
       try {
-        // Ensure connector initialized
-        if (!connector) {
-          alert('Lūdzu pagaidiet — pieslēgšanās nodrošināšanas process turpinās.');
-          return;
-        }
-        // Connect and get wallet interface
-        const connectedWallet = await connector.connect();
-        // Prepare transaction
+        // Ensure wallet is connected
+        const wallet = await connector.connect();
+        // Prepare a payment transaction
         const tx = {
-          validUntil: Math.floor(Date.now()/1000) + 600,
+          validUntil: Math.floor(Date.now() / 1000) + 600,
           messages: [{
             address: 'EQDz6GJiWRiCfY2w6d0wv54YcCeCbCnRcC8NU9tsY9pC_8X1',
             amount: (amount * 1e9).toString()
           }]
         };
-        // Send transaction
-        const result = await connectedWallet.sendTransaction(tx);
-        // Notify bot
+        // Send the transaction via the connected wallet
+        const result = await wallet.sendTransaction(tx);
+        // Send data back to Telegram bot
         Telegram.WebApp.sendData(JSON.stringify({ type: 'ton_payment', amount, txid: result.boc }));
         alert('✅ Maksājums veiksmīgi nosūtīts!');
       } catch (err) {
@@ -98,11 +96,10 @@
         alert('❌ Maksājuma laikā radās kļūda: ' + (err.message || err));
       }
     }
-    // On DOM ready
-    document.addEventListener('DOMContentLoaded', () => {
-      initConnector();
-      document.getElementById('btn-3ton').onclick = () => sendPayment(3);
-      document.getElementById('btn-20ton').onclick = () => sendPayment(20);
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initConnector();
+      document.getElementById('btn-3ton').addEventListener('click', () => sendPayment(3));
+      document.getElementById('btn-20ton').addEventListener('click', () => sendPayment(20));
     });
   </script>
 </head>
