@@ -1,94 +1,59 @@
-
 <!DOCTYPE html>
 <html lang="lv">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Savejiem 18+ Apmaksa</title>
-  <script type="module" src="https://unpkg.com/@tonconnect/ui@latest"></script>
+  <title>Savejie 18+ Apmaksa</title>
   <style>
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
       background-color: #000;
-      color: white;
+      color: #fff;
+      font-family: Arial, sans-serif;
       text-align: center;
+      padding: 20px;
     }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px;
-    }
-    .top-icon {
-      font-size: 22px;
-      color: white;
-      margin: 0 10px;
-      text-decoration: none;
-    }
-    .logo {
-      margin: 10px auto 20px;
-      max-width: 90%;
+    img.logo {
+      max-width: 80%;
       height: auto;
-    }
-    h1 {
-      font-size: 28px;
-      margin: 20px 0 10px;
-    }
-    h2 {
-      font-size: 20px;
-      margin-bottom: 20px;
-    }
-    .button {
-      background-color: #00d6af;
-      color: black;
-      border: none;
-      border-radius: 10px;
-      padding: 15px 20px;
-      font-size: 18px;
-      margin: 10px auto;
-      width: 80%;
-      max-width: 400px;
-      cursor: pointer;
+      margin: 20px auto;
       display: block;
     }
-    .button span {
-      margin-right: 8px;
+    h1 {
+      font-size: 2rem;
     }
-    ton-connect {
-      margin-right: 10px;
+    .payment-button {
+      background-color: #00d6af;
+      color: black;
+      padding: 15px;
+      margin: 10px auto;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      width: 80%;
+      cursor: pointer;
+    }
+    .payment-button:hover {
+      background-color: #00c0a0;
+    }
+    #ton-connect-button {
+      margin-top: 30px;
     }
   </style>
 </head>
 <body>
 
-  <div class="top-bar">
-    <a class="top-icon" href="https://t.me/Palidziba_Savejiem_18_pluss" target="_blank">@</a>
-    <ton-connect manifestUrl="https://xpogsx.github.io/tonconnect-manifest.json" />
+  <div>
+    <div id="ton-connect-button"></div>
+    <img src="logo.jpg" alt="Savejiem 18+ logo" class="logo" />
   </div>
-
-  <img class="logo" src="https://xpogsx.github.io/logo.jpg" alt="Savejiem 18+ logo" />
 
   <h1>Apmaksa par abonementu</h1>
   <h2>Izvēlies abonementu:</h2>
 
-  <button class="button" onclick="sendData('24h')">
-    <span>⚡️ 3 TON ⚡️</span> — 24 stundu abonements
-  </button>
+  <button id="pay24h" class="payment-button">⚡ 3 TON ⚡ — 24 stundu abonements</button>
+  <button id="pay30d" class="payment-button">⚡ 20 TON ⚡ — 30 dienu abonements</button>
 
-  <button class="button" onclick="sendData('30d')">
-    <span>⚡️ 20 TON ⚡️</span> — 30 dienu abonements
-  </button>
-
-  <script>
-    function sendData(duration) {
-      if (window.Telegram.WebApp) {
-        window.Telegram.WebApp.sendData(duration);
-        window.Telegram.WebApp.close();
-      } else {
-        alert("Telegram WebApp nav pieejams.");
-      }
-    }
-  </script>
+  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
