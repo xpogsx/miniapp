@@ -13,6 +13,8 @@ async function sendPaymentData(duration) {
 
   const address = wallet.account.address;
 
+  console.log("Sūtam uz bota WebApp:", address, duration); // ← Šis palīdz testēt
+
   // Nosūta uz Telegram WebApp (tavs bots saņems)
   Telegram.WebApp.sendData(JSON.stringify({
     wallet: address,
