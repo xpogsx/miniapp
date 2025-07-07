@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Savejie 18+ Apmaksa</title>
 
-  <!-- TonConnect UI -->
-  <script src="https://cdn.jsdelivr.net/npm/@tonconnect/ui/dist/tonconnect-ui.min.js"></script>
+  <!-- TonConnect UI CDN -->
+  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
@@ -60,38 +60,41 @@
   </style>
 
   <script>
-    // Iniciē TonConnect
+    // Iniciē TonConnect UI kā TON_CONNECT_UI globālo objektu
     let connector;
     function initConnector() {
-      connector = new TonConnectUI({
-        manifestUrl: "https://xpogsx.github.io/miniapp/tonconnect-manifest.json",
-        buttonRootId: "ton-connect"
+      connector = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: 'https://xpogsx.github.io/miniapp/tonconnect-manifest.json',
+        buttonRootId: 'ton-connect'
       });
-      if (connector.renderButton) connector.renderButton();
+      connector.renderButton();
     }
 
     // Sūtīt maksājumu
     async function sendPayment(amount) {
-      if (!connector) return alert("Seifs nav pieslēgts — lūdzu uzgaidi brīdi.");
       try {
-        const wallet = await connector.connect();
-        const tx = {
-          validUntil: Math.floor(Date.now()/1000) + 600,
+        // Atver wallet connect modal, ja nepieciešams
+        const wallet = await connector.connectWallet();
+        // Sagatavo transakciju
+        const transaction = {
+          validUntil: Math.floor(Date.now() / 1000) + 600,
           messages: [{
-            address: "EQDz6GJiWRiCfY2w6d0wv54YcCeCbCnRcC8NU9tsY9pC_8X1",
+            address: 'EQDz6GJiWRiCfY2w6d0wv54YcCeCbCnRcC8NU9tsY9pC_8X1',
             amount: (amount * 1e9).toString()
           }]
         };
-        const result = await wallet.sendTransaction(tx);
-        Telegram.WebApp.sendData(JSON.stringify({ type: "ton_payment", amount, txid: result.boc }));
-        alert("✅ Maksājums veiksmīgi nosūtīts!");
+        // Sūti transakciju
+        const result = await connector.sendTransaction(transaction);
+        // Nosūti datus atpakaļ Telegram botam
+        Telegram.WebApp.sendData(JSON.stringify({ type: 'ton_payment', amount, txid: result.boc }));
+        alert('✅ Maksājums veiksmīgi nosūtīts!');
       } catch (err) {
-        console.error('Maksājuma kļūda:', err);
-        alert("❌ Maksājuma laikā radās kļūda: " + (err.message||err));
+        console.error('🔴 Maksājuma kļūda:', err);
+        alert('❌ Maksājuma laikā radās kļūda: ' + (err.message || err));
       }
     }
 
-    // Piesaistīt pogas notikumus
+    // Kad DOM gatavs, inicializē UI un pievieno event listener’us
     document.addEventListener('DOMContentLoaded', () => {
       initConnector();
       document.getElementById('btn-3ton').addEventListener('click', () => sendPayment(3));
@@ -100,9 +103,10 @@
   </script>
 </head>
 <body>
-  <!-- Atbalsts -->
+  <!-- Atbalsta ikona -->
   <a href="https://t.me/Palidziba_Savejiem_18_pluss" class="header-icon support-icon" title="Atbalsts">@</a>
-  <!-- Pieslēgt seifu -->
+
+  <!-- TonConnect pogas konteineris -->
   <div id="ton-connect"></div>
 
   <!-- Logo un virsraksts -->
