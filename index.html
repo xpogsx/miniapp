@@ -6,16 +6,15 @@
   <title>Savejiem 18+ Apmaksa</title>
   <style>
     body { background: #000; color: #fff; font-family: Arial, sans-serif; text-align: center; padding: 20px; position: relative; }
-    img.logo { max-width: 80%; height: auto; display: block; margin: 40px auto 20px; }
+    img.logo { max-width: 80%; height: auto; display: block; margin: 60px auto 20px; }
     .payment-button { background: #00d6af; color: #000; padding: 15px; margin: 10px auto; border: none; border-radius: 12px; font-size: 1.2rem; width: 80%; cursor: pointer; }
     .payment-button:disabled { background: #555; cursor: not-allowed; }
     .payment-button:hover:enabled { background: #00c0a0; }
-    /* Pozicionēt Connect pogu augšējā labajā stūrī */
     #ton-connect-button { position: absolute; top: 20px; right: 20px; }
   </style>
 </head>
 <body>
-  <!-- TON Connect Wallet poga augšējā labajā stūrī -->
+  <!-- Pievienot Connect Wallet pogu šeit -->
   <div id="ton-connect-button"></div>
 
   <!-- Logo centrā -->
@@ -29,53 +28,61 @@
 
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <script>
+    // Padarīt WebApp gatavu
+    if (window.Telegram && Telegram.WebApp) {
+      Telegram.WebApp.ready();
+    }
+
     // Inicializēt TON Connect UI
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: "https://xpogsx.github.io/miniapp/tonconnect-manifest.json",
       buttonRootId: "ton-connect-button"
     });
-    // Attēlot Connect Wallet pogu
+    // Attēlot maku pieslēgšanas pogu
     if (typeof tonConnectUI.renderButton === 'function') {
       tonConnectUI.renderButton();
     } else if (typeof tonConnectUI.connectButton === 'function') {
       tonConnectUI.connectButton();
     }
 
-    // Summas nanotonās
-    const AMOUNTS = {
-      '24h': 3n * 10n**9n,
-      '30d': 20n * 10n**9n
-    };
+    // Map durations to nanograms
+    const AMOUNTS = { '24h': 3n * 10n**9n, '30d': 20n * 10n**9n };
 
-    // Aktivizēt maksājuma pogas, kad maks pievienots
+    // Debug status change
     tonConnectUI.onStatusChange(wallet => {
-      const enabled = wallet?.account?.address;
-      document.getElementById('pay24h').disabled = !enabled;
-      document.getElementById('pay30d').disabled = !enabled;
+      console.log('onStatusChange:', wallet);
+      const ok = wallet && wallet.account && wallet.account.address;
+      document.getElementById('pay24h').disabled = !ok;
+      document.getElementById('pay30d').disabled = !ok;
     });
 
-    // Maksājuma apstrāde
     async function handlePayment(duration) {
-      // Ja nav Telegram WebApp, deep-link uz Telegram
+      console.log('handlePayment start:', duration);
       if (typeof Telegram === 'undefined' || !Telegram.WebApp) {
+        alert('WebApp API nav pieejams, dodos atpakaļ uz Telegram');
         window.location.href = 'tg://resolve?domain=lsc18plussx_bot&start=web_app';
         return;
       }
       const wallet = tonConnectUI.wallet;
-      if (!wallet?.account?.address) return;
-      const messages = [{ type: 'org.ton.wallets.pay', to: 'YOUR_OWNER_ADDRESS', amount: AMOUNTS[duration].toString() }];
+      console.log('wallet status:', wallet);
+      if (!wallet || !wallet.account || !wallet.account.address) {
+        alert('⚠️ Pieslēdz maku!');
+        return;
+      }
+      const messages = [{ type:'org.ton.wallets.pay', to:'YOUR_OWNER_ADDRESS', amount:AMOUNTS[duration].toString() }];
       try {
-        const result = await tonConnectUI.sendTransaction({ messages, validUntil: Date.now() + 600000 });
+        const result = await tonConnectUI.sendTransaction({ messages, validUntil: Date.now()+600000 });
+        console.log('sendTransaction result:', result);
         if (result?.transactionHash) {
           Telegram.WebApp.sendData(JSON.stringify({ wallet: wallet.account.address, duration, txHash: result.transactionHash }));
           Telegram.WebApp.close();
         }
       } catch (e) {
-        alert('❌ Maksājuma kļūda: ' + (e.message || e));
+        console.error('TON Connect error:', e);
+        alert('❌ Maksājuma kļūda: '+(e.message||e));
       }
     }
 
-    // Piesaistīt pogas
     document.getElementById('pay24h').onclick = () => handlePayment('24h');
     document.getElementById('pay30d').onclick = () => handlePayment('30d');
   </script>
