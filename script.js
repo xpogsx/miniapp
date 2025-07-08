@@ -54,7 +54,7 @@ async function handlePayment(duration) {
 
   const messages = [{
     type: 'org.ton.wallets.pay',
-    to: 'YOUR_OWNER_ADDRESS',      // ← nomaini uz savu adresi
+    to: 'UQCBfUETzBux01R0KBdBdAWH6Cl-iHcOKQ1kj8CCo8Hv64h9',
     amount: AMOUNTS[duration].toString()
   }];
 
