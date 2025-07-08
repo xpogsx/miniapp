@@ -5,68 +5,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Savejiem 18+ Apmaksa</title>
   <style>
-    body { background: #000; color: #fff; font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-    img.logo { max-width: 80%; height: auto; display: block; margin: 0 auto 20px; }
+    body { background: #000; color: #fff; font-family: Arial, sans-serif; text-align: center; padding: 20px; position: relative; }
+    img.logo { max-width: 80%; height: auto; display: block; margin: 40px auto 20px; }
     .payment-button { background: #00d6af; color: #000; padding: 15px; margin: 10px auto; border: none; border-radius: 12px; font-size: 1.2rem; width: 80%; cursor: pointer; }
     .payment-button:disabled { background: #555; cursor: not-allowed; }
     .payment-button:hover:enabled { background: #00c0a0; }
+    /* Pozicionēt Connect pogu augšējā labajā stūrī */
+    #ton-connect-button { position: absolute; top: 20px; right: 20px; }
   </style>
 </head>
 <body>
-  <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-    <div style="width:24px;"></div>
-    <img src="logo.jpg" alt="Savejiem 18+ logo" class="logo" />
-    <div id="ton-connect-button"></div>
-  </header>
+  <!-- TON Connect Wallet poga augšējā labajā stūrī -->
+  <div id="ton-connect-button"></div>
+
+  <!-- Logo centrā -->
+  <img src="logo.jpg" alt="Savejiem 18+ logo" class="logo" />
+
   <h1>Apmaksa par abonementu</h1>
+
+  <!-- Maksājuma pogas -->
   <button id="pay24h" class="payment-button" disabled>⚡ 3 TON — 24h abonements</button>
   <button id="pay30d" class="payment-button" disabled>⚡ 20 TON — 30d abonements</button>
 
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <script>
-    // Iniciē TON Connect UI
+    // Inicializēt TON Connect UI
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: "https://xpogsx.github.io/miniapp/tonconnect-manifest.json",
       buttonRootId: "ton-connect-button"
     });
-    // Renderēt maku pieslēgšanas pogu
-    tonConnectUI.connectButton();
+    // Attēlot Connect Wallet pogu
+    if (typeof tonConnectUI.renderButton === 'function') {
+      tonConnectUI.renderButton();
+    } else if (typeof tonConnectUI.connectButton === 'function') {
+      tonConnectUI.connectButton();
+    }
 
-    // Map durations to nanograms
+    // Summas nanotonās
     const AMOUNTS = {
       '24h': 3n * 10n**9n,
       '30d': 20n * 10n**9n
     };
 
-    // Aktivizēt maksājuma pogas, kad maks ir pieslēgts
+    // Aktivizēt maksājuma pogas, kad maks pievienots
     tonConnectUI.onStatusChange(wallet => {
-      const enabled = wallet && wallet.account && wallet.account.address;
+      const enabled = wallet?.account?.address;
       document.getElementById('pay24h').disabled = !enabled;
       document.getElementById('pay30d').disabled = !enabled;
     });
 
+    // Maksājuma apstrāde
     async function handlePayment(duration) {
-      // Ja nav Telegram WebApp, deep-link
+      // Ja nav Telegram WebApp, deep-link uz Telegram
       if (typeof Telegram === 'undefined' || !Telegram.WebApp) {
         window.location.href = 'tg://resolve?domain=lsc18plussx_bot&start=web_app';
         return;
       }
       const wallet = tonConnectUI.wallet;
-      if (!wallet || !wallet.account || !wallet.account.address) return;
-      // Sagatavot maksājumu ziņojumu
-      const messages = [{
-        type: 'org.ton.wallets.pay',
-        to: 'YOUR_OWNER_ADDRESS',
-        amount: AMOUNTS[duration].toString()
-      }];
+      if (!wallet?.account?.address) return;
+      const messages = [{ type: 'org.ton.wallets.pay', to: 'YOUR_OWNER_ADDRESS', amount: AMOUNTS[duration].toString() }];
       try {
-        const result = await tonConnectUI.sendTransaction({ messages, validUntil: Date.now() + 10*60*1000 });
+        const result = await tonConnectUI.sendTransaction({ messages, validUntil: Date.now() + 600000 });
         if (result?.transactionHash) {
-          Telegram.WebApp.sendData(JSON.stringify({
-            wallet: wallet.account.address,
-            duration,
-            txHash: result.transactionHash
-          }));
+          Telegram.WebApp.sendData(JSON.stringify({ wallet: wallet.account.address, duration, txHash: result.transactionHash }));
           Telegram.WebApp.close();
         }
       } catch (e) {
@@ -74,7 +75,7 @@
       }
     }
 
-    // Piesaistīt pogām
+    // Piesaistīt pogas
     document.getElementById('pay24h').onclick = () => handlePayment('24h');
     document.getElementById('pay30d').onclick = () => handlePayment('30d');
   </script>
