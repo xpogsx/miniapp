@@ -3,7 +3,7 @@ const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
   buttonRootId: "ton-connect-button"
 });
 
-// Pārbauda, vai lietotājs ir pieslēdzies ar maku
+// Funkcija, kas nosūta apmaksas rezultātu uz Telegram botu
 async function sendPaymentData(duration) {
   const wallet = tonConnectUI.wallet;
   if (!wallet || !wallet.account || !wallet.account.address) {
@@ -12,24 +12,22 @@ async function sendPaymentData(duration) {
   }
 
   const address = wallet.account.address;
+  console.log("📤 Sūtam uz Telegram botu:", address, duration);
 
-  console.log("Sūtam uz bota WebApp:", address, duration); // ← Šis palīdz testēt
+  // Pārbaude, vai darbojas Telegram WebApp vidē
+  if (typeof Telegram === 'undefined' || !Telegram.WebApp) {
+    alert("❌ Telegram WebApp nav pieejams. Lūdzu, atver MiniApp caur Telegram.");
+    return;
+  }
 
-  // Nosūta uz Telegram WebApp (tavs bots saņems)
   Telegram.WebApp.sendData(JSON.stringify({
     wallet: address,
     duration: duration
   }));
 
-  Telegram.WebApp.close(); // aizver WebApp, ja vēlams
+  Telegram.WebApp.close();
 }
 
-// Poga: 24h (3 TON)
-document.getElementById("pay24h").onclick = () => {
-  sendPaymentData("24h");
-};
-
-// Poga: 30d (20 TON)
-document.getElementById("pay30d").onclick = () => {
-  sendPaymentData("30d");
-};
+// Apstrādā pogas
+document.getElementById("pay24h").onclick = () => sendPaymentData("24h");
+document.getElementById("pay30d").onclick = () => sendPaymentData("30d");
