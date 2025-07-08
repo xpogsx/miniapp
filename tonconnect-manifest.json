@@ -7,5 +7,8 @@
   "termsUrl": "https://ton.org/terms",
   "privacyPolicyUrl": "https://ton.org/privacy",
   "return_url": "https://t.me/lsc18plussx_bot/webapp",
-  "platforms": ["telegram"]
+  "platforms": ["telegram"],
+  "web_app": {
+    "url": "https://xpogsx.github.io/miniapp/"
+  }
 }
