@@ -14,72 +14,91 @@
   </style>
 </head>
 <body>
-  <!-- Pievienot Connect Wallet pogu šeit -->
+  <!-- TON Connect Wallet poga -->
   <div id="ton-connect-button"></div>
 
-  <!-- Logo centrā -->
+  <!-- Logo -->
   <img src="logo.jpg" alt="Savejiem 18+ logo" class="logo" />
-
   <h1>Apmaksa par abonementu</h1>
 
   <!-- Maksājuma pogas -->
   <button id="pay24h" class="payment-button" disabled>⚡ 3 TON — 24h abonements</button>
   <button id="pay30d" class="payment-button" disabled>⚡ 20 TON — 30d abonements</button>
 
+  <!-- TON Connect JS -->
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <script>
-    // Padarīt WebApp gatavu
+    // ✅ Inicializē Telegram WebApp
     if (window.Telegram && Telegram.WebApp) {
       Telegram.WebApp.ready();
+      console.log("✅ Telegram WebApp ready");
     }
 
-    // Inicializēt TON Connect UI
+    // ✅ Inicializē TON Connect UI
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: "https://xpogsx.github.io/miniapp/tonconnect-manifest.json",
       buttonRootId: "ton-connect-button"
     });
-    // Attēlot maku pieslēgšanas pogu
+
     if (typeof tonConnectUI.renderButton === 'function') {
       tonConnectUI.renderButton();
     } else if (typeof tonConnectUI.connectButton === 'function') {
       tonConnectUI.connectButton();
     }
 
-    // Map durations to nanograms
-    const AMOUNTS = { '24h': 3n * 10n**9n, '30d': 20n * 10n**9n };
+    // Maksājuma summas nanotonos
+    const AMOUNTS = {
+      '24h': 3n * 10n**9n,
+      '30d': 20n * 10n**9n
+    };
 
-    // Debug status change
+    // Kad maku pieslēdz, aktivizē pogas
     tonConnectUI.onStatusChange(wallet => {
-      console.log('onStatusChange:', wallet);
-      const ok = wallet && wallet.account && wallet.account.address;
-      document.getElementById('pay24h').disabled = !ok;
-      document.getElementById('pay30d').disabled = !ok;
+      console.log('🔗 Wallet status change:', wallet);
+      const enabled = wallet?.account?.address;
+      document.getElementById('pay24h').disabled = !enabled;
+      document.getElementById('pay30d').disabled = !enabled;
     });
 
+    // Maksājuma izpilde
     async function handlePayment(duration) {
-      console.log('handlePayment start:', duration);
+      console.log('➡️ Sākam maksājumu:', duration);
       if (typeof Telegram === 'undefined' || !Telegram.WebApp) {
-        alert('WebApp API nav pieejams, dodos atpakaļ uz Telegram');
+        alert('❌ Telegram WebApp nav pieejams. Atver Telegram.');
         window.location.href = 'tg://resolve?domain=lsc18plussx_bot&start=web_app';
         return;
       }
+
       const wallet = tonConnectUI.wallet;
-      console.log('wallet status:', wallet);
-      if (!wallet || !wallet.account || !wallet.account.address) {
-        alert('⚠️ Pieslēdz maku!');
+      if (!wallet?.account?.address) {
+        alert('⚠️ Lūdzu, pieslēdz savu TON maku!');
         return;
       }
-      const messages = [{ type:'org.ton.wallets.pay', to:'YOUR_OWNER_ADDRESS', amount:AMOUNTS[duration].toString() }];
+
+      const messages = [{
+        type: 'org.ton.wallets.pay',
+        to: 'UQCBfUETzBux01R0KBdBdAWH6Cl-iHcOKQ1kj8CCo8Hv64h9', // Tava adrese
+        amount: AMOUNTS[duration].toString()
+      }];
+
       try {
-        const result = await tonConnectUI.sendTransaction({ messages, validUntil: Date.now()+600000 });
-        console.log('sendTransaction result:', result);
+        const result = await tonConnectUI.sendTransaction({
+          messages,
+          validUntil: Date.now() + 10 * 60 * 1000
+        });
+
+        console.log('✅ Maksājuma rezultāts:', result);
         if (result?.transactionHash) {
-          Telegram.WebApp.sendData(JSON.stringify({ wallet: wallet.account.address, duration, txHash: result.transactionHash }));
+          Telegram.WebApp.sendData(JSON.stringify({
+            wallet: wallet.account.address,
+            duration,
+            txHash: result.transactionHash
+          }));
           Telegram.WebApp.close();
         }
       } catch (e) {
-        console.error('TON Connect error:', e);
-        alert('❌ Maksājuma kļūda: '+(e.message||e));
+        console.error('❌ TON Connect kļūda:', e);
+        alert('❌ Kļūda maksājuma laikā: ' + (e.message || e));
       }
     }
 
