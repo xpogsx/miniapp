@@ -26,29 +26,31 @@
       manifestUrl: "https://xpogsx.github.io/miniapp/tonconnect-manifest.json",
       buttonRootId: "ton-connect-button"
     });
+    // Renderēt maku pieslēgšanas pogu
+    tonConnectUI.connectButton();
 
-    // Poga tiek aktivizēta, kad maks ir pieslēgts
+    // Map durations to nanograms
+    const AMOUNTS = {
+      '24h': 3n * 10n**9n,
+      '30d': 20n * 10n**9n
+    };
+
+    // Aktivizēt maksājuma pogas, kad maks ir pieslēgts
     tonConnectUI.onStatusChange(wallet => {
       const enabled = wallet && wallet.account && wallet.account.address;
       document.getElementById('pay24h').disabled = !enabled;
       document.getElementById('pay30d').disabled = !enabled;
     });
 
-    // Map of durations to amounts
-    const AMOUNTS = {
-      '24h': 3n * 10n**9n,
-      '30d': 20n * 10n**9n
-    };
-
     async function handlePayment(duration) {
-      // Open Telegram WebApp if needed
+      // Ja nav Telegram WebApp, deep-link
       if (typeof Telegram === 'undefined' || !Telegram.WebApp) {
         window.location.href = 'tg://resolve?domain=Savejiem_18_pluss_bot&start=web_app';
         return;
       }
       const wallet = tonConnectUI.wallet;
       if (!wallet || !wallet.account || !wallet.account.address) return;
-      // Build transaction
+      // Sagatavot maksājumu ziņojumu
       const messages = [{
         type: 'org.ton.wallets.pay',
         to: 'YOUR_OWNER_ADDRESS',
@@ -69,6 +71,7 @@
       }
     }
 
+    // Piesaistīt pogām
     document.getElementById('pay24h').onclick = () => handlePayment('24h');
     document.getElementById('pay30d').onclick = () => handlePayment('30d');
   </script>
